@@ -1,13 +1,18 @@
 import * as vscode from "vscode";
 import { ChatViewProvider } from "./providers/chatViewProvider.js";
 import { CodeSuggestionProvider } from "./providers/codeSuggestionProvider.js";
+import { ActivityStatusBar } from "./providers/statusBarProvider.js";
 import {
 	GetInteractionSettings,
 	GetProviderFromSettings,
 } from "./service/base.js";
-import { ActivityStatusBar } from "./providers/statusBarProvider.js";
+import { tsLangParserService } from './service/lang-parsers/TypescriptLangParser.js';
 
 let statusBarProvider: ActivityStatusBar;
+
+const isTsRelated = (langId: string) => {
+	return langId === 'typescript' || langId === 'javascript' || langId === 'typescriptreact' || langId === 'javascriptreact';
+};
 
 export async function activate(context: vscode.ExtensionContext) {
 	const aiProvider = GetProviderFromSettings();
@@ -41,6 +46,13 @@ export async function activate(context: vscode.ExtensionContext) {
 			new CodeSuggestionProvider(aiProvider, interactionSettings)
 		)
 	);
+
+	context.subscriptions.push(
+		vscode.workspace.onDidOpenTextDocument(doc => {
+			if (isTsRelated(doc.languageId)) {
+				tsLangParserService.init(doc);
+			}
+		}));
 }
 
 export function deactivate() {

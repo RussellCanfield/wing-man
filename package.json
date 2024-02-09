@@ -248,6 +248,9 @@
 			}
 		}
 	},
+	"extensionKind": [
+		"ui"
+	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "vite build",
@@ -257,6 +260,9 @@
 		"lint": "eslint src --ext ts",
 		"test": "vscode-test",
 		"license": "generate-license-file --input package.json --output third-party-licenses.txt --overwrite"
+	},
+	"dependencies": {
+		"typescript": "5.3.2"
 	},
 	"devDependencies": {
 		"@types/vscode": "1.84.0",
@@ -269,7 +275,6 @@
 		"@typescript-eslint/parser": "6.13.1",
 		"@types/vscode-webview": "1.57.4",
 		"eslint": "^8.54.0",
-		"typescript": "5.3.2",
 		"@vscode/test-cli": "0.0.4",
 		"@vscode/test-electron": "2.3.8",
 		"vite": "5.0.6",
