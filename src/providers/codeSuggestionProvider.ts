@@ -8,8 +8,9 @@ import {
 	Position,
 	TextDocument,
 } from "vscode";
-import { AIProvider } from "../service/base";
 import { eventEmitter } from "../events/eventEmitter";
+import { getTypescriptFileContext, isTsRelated } from '../service';
+import { AIProvider } from "../service/base";
 import { InteractionSettings } from "../types/Settings";
 
 let timeout: NodeJS.Timeout | undefined;
@@ -39,7 +40,7 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 	constructor(
 		private readonly _aiProvider: AIProvider,
 		private readonly _interactionSettings: InteractionSettings
-	) {}
+	) { }
 
 	async provideInlineCompletionItems(
 		document: TextDocument,
@@ -79,7 +80,6 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 		}
 
 		const { document, selection } = editor;
-
 		let currentLine = selection.active.line;
 		let text = document
 			.lineAt(selection.active.line)
@@ -94,6 +94,15 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 		if (text.length > halfContext) {
 			const start = text.length - halfContext;
 			text = text.substring(start, text.length);
+		}
+		if (isTsRelated(document.languageId)) {
+			const importContext = ['Imports context']
+			const tsContext = getTypescriptFileContext(document.fileName);
+			for (const [_, content] of tsContext.imports) {
+				importContext.push(content);
+			}
+			text = importContext.join('') + text;
+			console.log('FIM for ', text)
 		}
 
 		return text;

@@ -18,18 +18,35 @@ const compilerOptions = {
 export class TypescriptLangParser {
   tsFileContext?: TypescriptFileContext;
   checker?: ts.TypeChecker;
-  constructor() { }
+  tsConfig: ts.CompilerOptions;
+  constructor(config: ts.CompilerOptions = {}) {
+    this.lazy();
+    this.tsConfig = { ...config, ...compilerOptions };
+  }
+
+  lazy = async () => {
+    const configFiles = await vscode.workspace.findFiles('tsconfig.json');
+    if (!configFiles.length) return;
+    const config = configFiles[0];
+    const document = await vscode.workspace.openTextDocument(config);
+    const text = document.getText();
+    const workspaceConfig = ts.parseConfigFileTextToJson(config.fsPath, text);
+    if (workspaceConfig.config) {
+      delete workspaceConfig.config.compilerOptions['moduleResolution'];
+      this.tsConfig = { ...workspaceConfig.config.compilerOptions, ...compilerOptions };
+    }
+  };
 
   init = (doc: vscode.TextDocument) => {
     const fileName = doc.fileName;
     this.tsFileContext = getTypescriptFileContext(fileName)!;
-    const host = ts.createCompilerHost(compilerOptions);
+    const host = ts.createCompilerHost(this.tsConfig);
     console.log(fileName);
     host.writeFile = (filename: string, contents: string) => {
       const removeExt = filename.replace('.d.ts', '');
       this.tsFileContext!.imports.set(removeExt, contents);
     };
-    const program = ts.createProgram([fileName], compilerOptions, host);
+    const program = ts.createProgram([fileName], this.tsConfig, host);
     program.emit();
     // const program = ts.createProgram([fileName], compilerOptions);
     // this.checker = program.getTypeChecker();

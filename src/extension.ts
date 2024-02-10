@@ -6,13 +6,10 @@ import {
 	GetInteractionSettings,
 	GetProviderFromSettings,
 } from "./service/base.js";
+import { isTsRelated } from './service/index.js';
 import { tsLangParserService } from './service/lang-parsers/TypescriptLangParser.js';
 
 let statusBarProvider: ActivityStatusBar;
-
-const isTsRelated = (langId: string) => {
-	return langId === 'typescript' || langId === 'javascript' || langId === 'typescriptreact' || langId === 'javascriptreact';
-};
 
 export async function activate(context: vscode.ExtensionContext) {
 	const aiProvider = GetProviderFromSettings();
