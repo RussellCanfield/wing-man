@@ -126,6 +126,10 @@ The models above will require enough RAM to run them correctly, you should have 
 
 ## Release Notes
 
+### 0.1.9
+
+Chat now has a text area for easier multi-line support! Fixed an issue affecting chat context.
+
 ### 0.1.7
 
 **OpenAI support is here!** If you have OpenAI credits or pay for the subscription you can now use it in Wingman. Simply select your 'AI Provider' in the VSCode settings for this extension (Wingman), then add your API key in the OpenAI settings - identical to how HuggingFace works.

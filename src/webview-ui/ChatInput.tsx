@@ -1,4 +1,7 @@
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import {
+	VSCodeTextArea,
+	VSCodeTextField,
+} from "@vscode/webview-ui-toolkit/react";
 import { useRef } from "react";
 import { FaPlay, FaStopCircle } from "react-icons/fa";
 import styled from "styled-components";
@@ -26,6 +29,10 @@ const ChatInput = ({
 
 	const handleUserInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
+			if (e.shiftKey) {
+				return;
+			}
+
 			const element = e.target as HTMLInputElement;
 			const message = element.value;
 
@@ -43,7 +50,7 @@ const ChatInput = ({
 
 	return (
 		<UserInput>
-			<VSCodeTextField
+			<VSCodeTextArea
 				placeholder="Type here to chat with the extension"
 				ref={chatInputBox}
 				style={
@@ -53,34 +60,31 @@ const ChatInput = ({
 					} as React.CSSProperties
 				}
 				onKeyDown={handleUserInput}
-			>
+			/>
+			<span style={{ padding: "1em" }}>
 				{!loading && (
-					<span slot="end">
-						<FaPlay
-							size={16}
-							role="presentation"
-							title="Send message"
-							onClick={() =>
-								handleUserInput({
-									key: "Enter",
-									preventDefault: () => {},
-									target: chatInputBox.current,
-								} as unknown as React.KeyboardEvent<HTMLInputElement>)
-							}
-						/>
-					</span>
+					<FaPlay
+						size={16}
+						role="presentation"
+						title="Send message"
+						onClick={() =>
+							handleUserInput({
+								key: "Enter",
+								preventDefault: () => {},
+								target: chatInputBox.current,
+							} as unknown as React.KeyboardEvent<HTMLInputElement>)
+						}
+					/>
 				)}
 				{loading && (
-					<span slot="end">
-						<FaStopCircle
-							size={16}
-							role="presentation"
-							title="Cancel chat"
-							onClick={onChatCancelled}
-						/>
-					</span>
+					<FaStopCircle
+						size={16}
+						role="presentation"
+						title="Cancel chat"
+						onClick={onChatCancelled}
+					/>
 				)}
-			</VSCodeTextField>
+			</span>
 		</UserInput>
 	);
 };

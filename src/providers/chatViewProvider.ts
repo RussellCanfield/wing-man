@@ -259,8 +259,6 @@ function getChatContext(contextWindow: number): CodeContextDetails | undefined {
 		return undefined;
 	}
 
-	const lineWindow = 15;
-
 	const { document, selection } = editor;
 	let codeContextRange: vscode.Range;
 
@@ -273,30 +271,27 @@ function getChatContext(contextWindow: number): CodeContextDetails | undefined {
 		);
 	} else {
 		const currentLine = selection.active.line;
-		let text = document.lineAt(currentLine).text;
 
 		let upperLine = currentLine;
 		let lowerLine = currentLine;
 
 		const halfContext = contextWindow / 2;
 
+		let upperText = document.lineAt(upperLine - 1).text;
 		// Go upwards
-		while (text.length < halfContext && upperLine > 0) {
+		while (upperText.length < halfContext && upperLine > 0) {
 			upperLine--;
-			text = document.lineAt(upperLine).text + "\n" + text;
+			upperText += "\n" + document.lineAt(upperLine).text;
 		}
 
+		let lowerText = document.lineAt(lowerLine).text;
 		// Go downwards
 		while (
-			text.length < halfContext &&
+			lowerText.length < halfContext &&
 			lowerLine < document.lineCount - 1
 		) {
 			lowerLine++;
-			text += "\n" + document.lineAt(lowerLine).text;
-		}
-
-		if (text.length > halfContext) {
-			text = text.substring(0, halfContext);
+			lowerText += "\n" + document.lineAt(lowerLine).text;
 		}
 
 		const beginningWindowLine = document.lineAt(upperLine);
@@ -308,7 +303,13 @@ function getChatContext(contextWindow: number): CodeContextDetails | undefined {
 		);
 	}
 
-	const text = document.getText(codeContextRange);
+	let text = document.getText(codeContextRange);
+
+	if (text.length > contextWindow) {
+		text = text.substring(0, contextWindow);
+	}
+
+	console.log(text);
 
 	const documentUri = vscode.Uri.file(document.fileName);
 	const workspaceFolder = vscode.workspace.getWorkspaceFolder(documentUri);
