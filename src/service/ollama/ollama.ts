@@ -243,7 +243,6 @@ export class Ollama implements AIStreamProvicer {
 		signal: AbortSignal
 	): Promise<string> {
 		const startTime = new Date().getTime();
-
 		const codeRequestOptions: OllamaRequest = {
 			model: this.settings?.codeModel!,
 			prompt: this.codeModel!.CodeCompletionPrompt.replace(
@@ -330,7 +329,7 @@ export class Ollama implements AIStreamProvicer {
 		const executionTime = (endTime - startTime) / 1000;
 
 		loggingProvider.logInfo(
-			`Ollama - Chat stream finished in ${executionTime} seconds with contents: ${JSON.stringify(
+			`Ollama - Code stream finished in ${executionTime} seconds with contents: ${JSON.stringify(
 				sentences
 			)}`
 		);
@@ -368,22 +367,31 @@ export class Ollama implements AIStreamProvicer {
 
 		let sentences: string[] = [];
 		let requestStatus = { done: false };
+		const abortSignal = new AbortController();
+		signal.onabort = () => abortSignal.abort();
 		try {
 			this.codeCompleteRequest(
 				sentences,
 				codeRequestOptions,
-				signal,
+				abortSignal.signal,
 				requestStatus
 			);
 			const start = Date.now();
 			let now = Date.now();
 			// lets setup a window to allow for the fastest return time
-			while (now - start < 1500) {
+			while (now - start < 4500) {
 				await delay(100);
 				if (requestStatus.done) {
 					return sentences.join("\n");
 				}
+
+				if (now - start > 1000 && sentences.length > 1) {
+					abortSignal.abort();
+					return sentences.join('\n');
+				}
+				now = Date.now();
 			}
+			abortSignal.abort();
 			return sentences.join("\n");
 		} catch {
 			return "";

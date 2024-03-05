@@ -3,6 +3,7 @@ import { GenDocs } from "./commands/GenDocs.js";
 import { ChatViewProvider } from "./providers/chatViewProvider.js";
 import { CodeSuggestionProvider } from "./providers/codeSuggestionProvider.js";
 import { ConfigViewProvider } from "./providers/configViewProvider.js";
+import { HotKeyCodeSuggestionProvider } from './providers/hotkeyCodeSuggestionProvider.js';
 import { RefactorProvider } from "./providers/refactorProvider.js";
 import { ActivityStatusBar } from "./providers/statusBarProvider.js";
 import {
@@ -66,12 +67,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	context.subscriptions.push(
-		vscode.languages.registerInlineCompletionItemProvider(
-			CodeSuggestionProvider.selector,
-			new CodeSuggestionProvider(aiProvider, interactionSettings)
-		)
-	);
+	if (interactionSettings.codeCompletionEnabled) {
+		context.subscriptions.push(
+			vscode.languages.registerInlineCompletionItemProvider(
+				CodeSuggestionProvider.selector,
+				new CodeSuggestionProvider(aiProvider, interactionSettings)
+			)
+		);
+	}
 
 	// context.subscriptions.push(
 	// 	vscode.languages.registerCodeActionsProvider(
@@ -93,6 +96,11 @@ export async function activate(context: vscode.ExtensionContext) {
 					RefactorProvider.providedCodeActionKinds,
 			}
 		)
+	);
+
+	HotKeyCodeSuggestionProvider.provider = new HotKeyCodeSuggestionProvider(aiProvider, interactionSettings);
+	context.subscriptions.push(
+		vscode.commands.registerCommand(HotKeyCodeSuggestionProvider.command, HotKeyCodeSuggestionProvider.showSuggestion)
 	);
 }
 

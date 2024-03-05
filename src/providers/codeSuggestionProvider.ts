@@ -11,6 +11,7 @@ import {
 import { eventEmitter } from "../events/eventEmitter";
 import { AIProvider, AIStreamProvicer } from "../service/base";
 import { delay } from "../service/delay";
+import { getContentWindow } from '../service/utils/contentWindow';
 import { InteractionSettings } from "../types/Settings";
 
 export class CodeSuggestionProvider implements InlineCompletionItemProvider {
@@ -38,7 +39,7 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 	constructor(
 		private readonly _aiProvider: AIProvider | AIStreamProvicer,
 		private readonly _interactionSettings: InteractionSettings
-	) {}
+	) { }
 
 	async provideInlineCompletionItems(
 		document: TextDocument,
@@ -53,7 +54,7 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 		let timeout: NodeJS.Timeout | undefined;
 
 		const abort = new AbortController();
-		const [prefix, suffix] = this.getContentWindow(document, position);
+		const [prefix, suffix] = getContentWindow(document, position, this._interactionSettings.codeContextWindow);
 
 		token.onCancellationRequested(() => {
 			try {
@@ -81,44 +82,6 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 		} catch {
 			return [new InlineCompletionItem("")];
 		}
-	}
-
-	private getContentWindow(document: TextDocument, position: Position) {
-		let prefix: string = "";
-		let suffix: string = "";
-		const length = this._interactionSettings.codeContextWindow;
-		let tokenCount = 0;
-		const text = document.getText();
-		let current = document.offsetAt(position);
-		let top = current;
-		let bottom = current;
-
-		// every 3 chars we add a new token to the token count
-		let letCurrentChatToTokenCount = 0;
-		while (tokenCount < length && (top > -1 || bottom < text.length)) {
-			if (top > -1) {
-				letCurrentChatToTokenCount++;
-				top--;
-			}
-
-			if (letCurrentChatToTokenCount === 3) {
-				tokenCount++;
-				letCurrentChatToTokenCount = 0;
-			}
-
-			if (bottom < text.length) {
-				letCurrentChatToTokenCount++;
-				bottom++;
-			}
-
-			if (letCurrentChatToTokenCount === 3) {
-				tokenCount++;
-				letCurrentChatToTokenCount = 0;
-			}
-		}
-		prefix = text.substring(top, current);
-		suffix = text.substring(current, bottom);
-		return [prefix, suffix];
 	}
 
 	async bouncedRequest(

@@ -2,7 +2,7 @@
 	"name": "wing-man",
 	"displayName": "Wingman-AI",
 	"description": "Wingman - AI powered assistant to help you write your best code, we won't leave you hanging.",
-	"version": "0.2.10",
+	"version": "0.2.20",
 	"publisher": "WingMan",
 	"license": "MIT",
 	"authors": [
@@ -289,6 +289,16 @@
 			{
 				"command": "wingmanai.refactorcode",
 				"title": "Refactor Code"
+			},
+			{
+				"command": "wingmanai.triggercodecomplete",
+				"title": "Code Complete"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "wingmanai.triggercodecomplete",
+				"key": "ctrl+shift+space"
 			}
 		]
 	},
