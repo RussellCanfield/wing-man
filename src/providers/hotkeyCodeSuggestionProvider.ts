@@ -31,10 +31,14 @@ export class HotKeyCodeSuggestionProvider implements vscode.CompletionItemProvid
     }
 
     const [prefix, suffix] = getContentWindow(document, position, this._interactionSettings.codeContextWindow);
+    //get the biginning of the last line in prefix
+    const lastLineStart = prefix.lastIndexOf('\n');
+    // count the starting spaces in the last line
+    const spaces = prefix.substring(lastLineStart + 1).search(/\S/) ?? 0;
     try {
       eventEmitter._onQueryStart.fire();
       const response = await this._aiProvider.codeComplete(prefix, suffix, abort.signal);
-      const snippet = new vscode.SnippetString(response.replace(/\n[\t ]+/g, '\n'));
+      const snippet = new vscode.SnippetString(response.replace(new RegExp(`\n[\\s]{${spaces}}`, 'g'), '\n'));
       const item = new vscode.CompletionItem(response, vscode.CompletionItemKind.Snippet);
       item.insertText = snippet;
       return [item];
