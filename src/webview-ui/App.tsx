@@ -1,11 +1,12 @@
-import { vscode } from "./utilities/vscode";
 import { useEffect, useState } from "react";
+import { VscClearAll } from "react-icons/vsc";
+import styled from "styled-components";
 import { AppMessage, ChatMessage, CodeContext } from "../types/Message";
 import ChatEntry from "./ChatEntry";
-import styled from "styled-components";
-import { VscClearAll } from "react-icons/vsc";
-import { ChatResponseList } from "./ChatList";
 import { ChatInput } from "./ChatInput";
+import { ChatResponseList } from "./ChatList";
+import { localMemState } from './utilities/localMemState';
+import { vscode } from "./utilities/vscode";
 
 const Main = styled.main`
 	height: 100%;
@@ -108,9 +109,11 @@ const App = () => {
 				});
 				break;
 			case "init":
-				const { workspaceFolder } = value as {
+				const { workspaceFolder, theme } = value as {
 					workspaceFolder: string;
+					theme: number;
 				};
+				localMemState.setState('theme', theme);
 
 				activeWorkspace = workspaceFolder;
 
@@ -126,6 +129,9 @@ const App = () => {
 					setMessages(chatHistory[activeWorkspace]);
 				}
 				break;
+			case "setTheme":
+				const newTheme = value as number;
+				localMemState.setState('theme', newTheme);
 		}
 	};
 

@@ -3,6 +3,7 @@ import { eventEmitter } from "../events/eventEmitter";
 import { AIProvider } from "../service/base";
 import { AppMessage, CodeContext, CodeContextDetails } from "../types/Message";
 import { InteractionSettings } from "../types/Settings";
+import { loggingProvider } from './loggingProvider';
 import { getSymbolsFromOpenFiles } from "./utilities";
 
 let abortController = new AbortController();
@@ -16,7 +17,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 		private readonly _aiProvider: AIProvider,
 		private readonly _context: vscode.ExtensionContext,
 		private readonly _interactionSettings: InteractionSettings
-	) {}
+	) { }
 
 	dispose() {
 		this._disposables.forEach((d) => d.dispose());
@@ -97,11 +98,19 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 							command: "init",
 							value: {
 								workspaceFolder: getActiveWorkspace(),
+								theme: vscode.window.activeColorTheme.kind
 							},
 						});
 						break;
 					}
+					case "log": {
+						this.log(value);
+						break;
+					}
 				}
+			}),
+			vscode.window.onDidChangeActiveColorTheme((theme: vscode.ColorTheme) => {
+				webviewView.webview.postMessage({ command: 'setTheme', value: theme.kind });
 			})
 		);
 	}
@@ -236,6 +245,11 @@ ${currentLine}
           </body>
         </html>`;
 	}
+
+
+	private log = (value: unknown) => {
+		loggingProvider.logInfo(JSON.stringify(value ?? ""));
+	};
 }
 
 function getActiveWorkspace() {
