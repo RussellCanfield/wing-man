@@ -1,11 +1,13 @@
 class LocalMemState {
   state: Record<string, unknown> = {};
+  savedState = this.state;
   listeners: Set<() => void> = new Set();
 
   getState = (key: string) => this.state[key];
 
   setState = (key: string, payload: unknown) => {
     this.state[key] = payload;
+    this.savedState = { ...this.state };
     this.listeners.forEach(l => l());
   };
 
@@ -17,7 +19,7 @@ class LocalMemState {
   };
 
   getSnapshot = () => {
-    return { ...this.state };
+    return this.savedState;
   };
 }
 
