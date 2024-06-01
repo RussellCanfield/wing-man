@@ -8,6 +8,7 @@ import { AIStreamProvicer, GetInteractionSettings } from "../base";
 import { delay } from "../delay";
 import { CodeLlama } from "./models/codellama";
 import { CodeQwen } from './models/codeqwen';
+import { Codestral } from './models/codestral';
 import { Deepseek } from "./models/deepseek";
 import { Llama3 } from "./models/llama3";
 import { Magicoder } from "./models/magicoder";
@@ -84,6 +85,8 @@ export class Ollama implements AIStreamProvicer {
 				return new Deepseek();
 			case codeModel.startsWith('codeqwen'):
 				return new CodeQwen();
+			case codeModel.startsWith('codestral'):
+				return new Codestral();
 			default:
 				this.handleError(
 					"Invalid code model name, currently code supports CodeLlama and Deepseek models."
@@ -105,6 +108,8 @@ export class Ollama implements AIStreamProvicer {
 				return new PhindCodeLlama();
 			case chatModel.startsWith('codeqwen'):
 				return new CodeQwen();
+			case chatModel.startsWith('codestral'):
+				return new Codestral();
 			default:
 				this.handleError(
 					"Invalid chat model name, currently chat supports CodeLlama, Phind CodeLlama and Deepseek models."

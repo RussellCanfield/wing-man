@@ -35,12 +35,16 @@ export class CodeSuggestionProvider implements InlineCompletionItemProvider {
 		{ scheme: "file", language: "scss" },
 		{ scheme: "file", language: "html" },
 		{ scheme: "file", language: "json" },
+		{ scheme: "file", language: "vue" },
+		{ scheme: 'file', language: 'shellscript' },
+		{ scheme: 'file', language: 'sh' },
+		{ scheme: 'file', language: 'bash' }
 	];
 
 	constructor(
 		private readonly _aiProvider: AIProvider | AIStreamProvicer,
 		private readonly _interactionSettings: InteractionSettings
-	) {}
+	) { }
 
 	async provideInlineCompletionItems(
 		document: TextDocument,
