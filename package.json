@@ -2,7 +2,7 @@
 	"name": "wing-man",
 	"displayName": "Wingman-AI",
 	"description": "Wingman - AI powered assistant to help you write your best code, we won't leave you hanging.",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"publisher": "WingMan",
 	"license": "MIT",
 	"authors": [
